@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
 buildscript {
     repositories {
         // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
@@ -16,6 +19,7 @@ version = '0.1.0'
 
 configurations {
     accessTransformer
+    coremod
 }
 
 java {
@@ -26,7 +30,7 @@ java {
 repositories {
     maven {url "https://cursemaven.com"}
     maven {url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven'}
-    maven { url 'https://dvs1.progwml6.com/files/maven' }
+    maven {url 'https://dvs1.progwml6.com/files/maven'}
 }
 
 dependencies {
@@ -34,8 +38,8 @@ dependencies {
 
     implementation fg.deobf("curse.maven:cqrepoured-303422:3605767")
 
-    runtimeClasspath fg.deobf('software.bernie.geckolib:forge-1.12.2-geckolib:3.0.13')
-//    runtimeClasspath fg.deobf('curse.maven:ReachFix-556777:3584670')
+    runtimeOnly fg.deobf('software.bernie.geckolib:forge-1.12.2-geckolib:3.0.13')
+    coremod fg.deobf('curse.maven:ReachFix-556777:3584670')
     accessTransformer 'curse.maven:ReachFix-556777:3584670'
     accessTransformer 'mezz.jei:jei_1.12.2:4.16.1.302'
     accessTransformer "curse.maven:cqrepoured-303422:3605767"
@@ -55,11 +59,11 @@ minecraft {
     // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: 'stable', version: '39-1.12'
 
-    def accessTransformers = files(configurations.accessTransformer.collect { zipTree(it) }).getAsFileTree()
+    def accessTransformers = files(configurations.accessTransformer.collect {zipTree(it)}).getAsFileTree()
     accessTransformer = files(
             'src/main/resources/META-INF/accesstransformer.cfg',
-            accessTransformers.matching { include 'META-INF/jei_at.cfg' },
-            accessTransformers.matching { include 'META-INF/accesstransformer.cfg' }
+            accessTransformers.matching {include 'META-INF/jei_at.cfg'},
+            accessTransformers.matching {include 'META-INF/accesstransformer.cfg'}
     )
 
     // Default run configurations.
@@ -130,3 +134,16 @@ jar {
 }
 
 jar.finalizedBy('reobfJar')
+
+def copyCoremods = task("copyCoremods") {
+    def coremods = files(configurations.coremod)
+    inputs.files(coremods)
+    files(coremods).forEach(file -> {
+        def target = project.file("run/mods").toPath().resolve(file.name)
+        Files.copy(file.toPath(), target, StandardCopyOption.REPLACE_EXISTING)
+    })
+}
+
+downloadAssets {
+    finalizedBy(copyCoremods)
+}
