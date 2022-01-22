@@ -1,0 +1,4 @@
+generator.chocolateDungeon = 地牢
+generator.chocolateDungeon.info = 寻找巧克力地牢
+
+chocolateDungeonWorld.selectDungeon = 输入地牢名称

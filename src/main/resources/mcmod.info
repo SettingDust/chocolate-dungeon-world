@@ -1,0 +1,12 @@
+[
+    {
+        "modid": "chocolate-dungeon-world",
+        "name": "Chocolate Dungeon World",
+        "description": "",
+        "version": "0.1.0",
+        "mcversion": "1.12.2",
+        "authorList": ["SettingDust"],
+        "requiredMods": ["forge@[14.23.5.2817,)", "cqrepoured@[2.0.0,)"],
+        "useDependencyInformation": true
+    }
+]
